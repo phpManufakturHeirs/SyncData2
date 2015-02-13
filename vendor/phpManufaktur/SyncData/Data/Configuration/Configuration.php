@@ -83,12 +83,30 @@ class Configuration
         // generate a KEY
         self::$key = $this->app['utils']->generatePassword(9, false, 'lud');
 
+        // Type and version of the CMS
+        if (isset($cms_settings['lepton_version'])) {
+            $cms_type = 'LEPTON';
+            $cms_version = $cms_settings['lepton_version'];
+        }
+        elseif (isset($cms_settings['cat_version'])) {
+            $cms_type = 'BlackCat';
+            $cms_version = $cms_settings['cat_version'];
+        }
+        else {
+            $cms_type = 'WebsiteBaker';
+            $cms_version = $cms_settings['wb_version'];
+            // fix for WB 2.8.4
+            if (($cms_version == '2.8.3') && file_exists(WB_PATH.'/setup.ini.php')) {
+                $cms_version = '2.8.4';
+            }
+        }
+
         self::$config_array = array(
             'CMS' => array(
                 'CMS_SERVER_EMAIL' => $cms_settings['server_email'],
-                'CMS_SERVER_NAME' => $cms_settings['wbmailer_default_sendername'],
-                'CMS_TYPE' => (isset($cms_settings['lepton_version'])) ? 'LEPTON' : 'WebsiteBaker',
-                'CMS_VERSION' => (isset($cms_settings['lepton_version'])) ? $cms_settings['lepton_version'] : $cms_settings['wb_version'],
+                'CMS_SERVER_NAME' => (($cms_type=='BlackCat')?$cms_settings['catmailer_default_sendername']:$cms_settings['wbmailer_default_sendername']),
+                'CMS_TYPE' => $cms_type,
+                'CMS_VERSION' => $cms_version,
                 'CMS_MEDIA_DIRECTORY' => $cms_settings['media_directory'],
                 'CMS_PAGES_DIRECTORY' => $cms_settings['pages_directory'],
                 'CMS_URL' => WB_URL,

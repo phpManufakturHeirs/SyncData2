@@ -79,6 +79,18 @@ class Restore
         $ignore_tables = $this->app['config']['restore']['tables']['ignore']['table'];
         $ignore_table_sub_prefix = $this->app['config']['restore']['tables']['ignore']['sub_prefix'];
 
+        // BlackCat CMS uses foreign keys, import may fail with alphabetical
+        // sort order
+        if($this->app['config']['CMS']['CMS_TYPE'] == 'BlackCat') {
+            $this->app['monolog']->addInfo("Disable foreign key checks (CMS_TYPE is BlackCat)",
+                        array('method' => __METHOD__, 'line' => __LINE__));
+            $general->query('set FOREIGN_KEY_CHECKS = 0;');
+        }
+        else {
+            $this->app['monolog']->addInfo("Did not disable foreign key checks (CMS_TYPE is ".$this->app['config']['CMS']['CMS_TYPE'].")",
+                        array('method' => __METHOD__, 'line' => __LINE__));
+        }
+
         try {
             // restore the tables
             foreach ($tables as $table) {
@@ -156,6 +168,10 @@ class Restore
                     }
                     */
                 }
+            }
+
+            if($this->app['config']['CMS']['CMS_TYPE'] == 'BlackCat') {
+                $general->query('set FOREIGN_KEY_CHECKS = 1;');
             }
         } catch (\Exception $e) {
             if ($create_backup) {

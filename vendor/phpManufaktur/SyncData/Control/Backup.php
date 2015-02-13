@@ -155,6 +155,8 @@ class Backup
                         // replace all real URLs of the CMS  with a placeholder
                         $count = 0;
                         $new_row[$key] = is_string($value) ? str_ireplace(CMS_URL, '{{ SyncData:CMS_URL }}', $value, $count) : $value;
+                        // important to avoid null values in json_encode
+                        $new_row[$key] = utf8_encode($new_row[$key]);
                         if ($count > 0) {
                             $this->app['monolog']->addInfo(sprintf("Replaced the CMS URL %d time(s) in row %s of table %s", $count, $key, $table),
                                 array('method' => __METHOD__, 'line' => __LINE__));
@@ -358,7 +360,7 @@ class Backup
             }
 
             $this->app['monolog']->addInfo('Backup finished', array('method' => __METHOD__, 'line' => __LINE__));
-            return "Processed ".$this->app['utils']->getCountTables()." tables and create a backup file.";
+            return "Processed ".$this->app['utils']->getCountTables()." tables and created a backup file.";
         } catch (\Exception $e) {
             throw new \Exception($e);
         }

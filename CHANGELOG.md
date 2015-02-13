@@ -3,6 +3,13 @@
 (c) 2011, 2013 phpManufaktur by Ralf Hertsch<br/>
 MIT License (MIT) - <http://www.opensource.org/licenses/MIT>
 
+**2.0.35** - 2015-02-13
+
+* added support for BlackCat CMS
+* fixed problem with UTF8 in backups leading to null values in the database
+  * Note: I know Ralf removed the utf8_encode() part for some reason, but as
+    it seems to help, I re-added it
+
 **2.0.34** - 2013-11-25
 
 * added checks for MySQL InnoDB (is required)
