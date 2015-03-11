@@ -124,6 +124,23 @@ class Check
                             if (false === ($record = $General->getRowContent(CMS_TABLE_PREFIX.$table['table_name'], array($backupRow['index_field'] => $backupRow['index_id'])))) {
                                 throw new \Exception(sprintf("Can't read the row content for table %s by select %s and %s", $table['table_name'], $backupRow['index_field'], $backupRow['index_id']));
                             }
+                            // CKE in BlackCat converts " to &quot; so we convert them back before writing the changes
+                            if($this->app['config']['CMS']['CMS_TYPE'] == 'BlackCat') {
+                                if(isset($record['content'])) {
+                                $record['content'] = str_replace(
+                                    array('&quot;', '&#39;'),
+                                    array('"'     , "'"    ),
+                                    $record['content']
+                                );
+                                }
+                                if(isset($record['text'])) {
+                                $record['text'] = str_replace(
+                                    array('&quot;', '&#39;'),
+                                    array('"'     , "'"    ),
+                                    $record['text']
+                                );
+                            }
+                            }
                             $data = array(
                                 'backup_id' => self::$backup_id,
                                 'index_field' => $backupRow['index_field'],
