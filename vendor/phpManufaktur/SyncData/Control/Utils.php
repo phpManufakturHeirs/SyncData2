@@ -235,6 +235,44 @@ class Utils
     }
 
     /**
+     * create directory recursive
+     *
+     * @param  string  $dir_name
+     * @param  string  $dir_mode
+     * @return boolean
+     **/
+	public function createRecursive($dir_name, $dir_mode=NULL)
+	{
+         if ( ! $dir_mode )
+         {
+             $dir_mode = (int) octdec($this->defaultDirMode());
+         }
+	     if ( $dir_name != '' && !is_dir($dir_name) )
+	     {
+	         $umask = umask(0);
+	         mkdir($dir_name, $dir_mode, true);
+	         umask($umask);
+	         return true;
+	     }
+	     return false;
+	 }   // end function createRecursive()
+
+    /**
+	 * If the configuration setting 'string_dir_mode' is missing, we need
+	 * a default value that fits most cases.
+	 *
+     * @access public
+     * @return string
+     **/
+    public function defaultDirMode() {
+        return (
+              (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN')
+            ? '0777'
+            : '0755'
+        );
+    }   // end function defaultDirMode()
+
+    /**
      * Copy files recursive from source to destination
      *
      * @param string $source_directory

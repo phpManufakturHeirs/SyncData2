@@ -145,6 +145,14 @@ class SynchronizeClient
             else {
                 // CHANGED or NEW
                 if (file_exists(TEMP_PATH.'/sync/synchronize/CMS'.$file['relative_path'])) {
+                    // check if destination folder exists
+                    $dest_path = pathinfo(CMS_PATH.$file['relative_path'],PATHINFO_DIRNAME);
+                    if (!is_dir($dest_path)) {
+                        if(!$this->app['utils']->createRecursive($dest_path)) {
+                            $this->app['monolog']->addError("Can't create destination directory ".$dest_path,
+                                array('method' => __METHOD__, 'line' => __LINE__));
+                        }
+                    }
                     if (!@copy(TEMP_PATH.'/sync/synchronize/CMS'.$file['relative_path'],
                         CMS_PATH.$file['relative_path'])) {
                         $this->app['monolog']->addError("Can't copy file to ".$file['relative_path'],

@@ -3,6 +3,10 @@
 (c) 2011, 2013 phpManufaktur by Ralf Hertsch<br/>
 MIT License (MIT) - <http://www.opensource.org/licenses/MIT>
 
+**2.0.36** - 2015-03-30
+
+* fix: sub directories not created (for example in /media)
+
 **2.0.35** - 2015-02-13
 
 * added support for BlackCat CMS

@@ -129,11 +129,12 @@ class Restore
 
                     try {
                         // disable the table keys
-                        $this->app['db']->query("ALTER TABLE ".CMS_TABLE_PREFIX."$table DISABLE KEYS");
-                        $this->app['monolog']->addInfo("DISABLE KEYS for $table",
+                        $this->app['monolog']->addInfo("DISABLE KEYS for `$table`",
                             array('method' => __METHOD__, 'line' => __LINE__));
+                        $this->app['db']->query("ALTER TABLE `".CMS_TABLE_PREFIX."$table` DISABLE KEYS");
                     } catch (\Doctrine\DBAL\DBALException $e) {
-                        throw $e->getMessage();
+                        $this->app['monolog']->addError($e->getMessage());
+                        throw new \Exception($e->getMessage());
                     }
                     // get the table rows from JSON
                     if (false === ($rows = json_decode(@file_get_contents("$source_path/$table.json"), true))) {
@@ -147,9 +148,9 @@ class Restore
 
                     try{
                         // enable the table keys
-                        $this->app['db']->query("ALTER TABLE ".CMS_TABLE_PREFIX."$table ENABLE KEYS");
-                        $this->app['monolog']->addInfo("ENABLE KEYS for $table",
+                        $this->app['monolog']->addInfo("ENABLE KEYS for `$table`",
                             array('method' => __METHOD__, 'line' => __LINE__));
+                        $this->app['db']->query("ALTER TABLE `".CMS_TABLE_PREFIX."$table` ENABLE KEYS");
                     } catch (\Doctrine\DBAL\DBALException $e) {
                         throw $e->getMessage();
                     }
