@@ -196,6 +196,11 @@ EOD;
                 if (($key == 'id') || ($key == 'timestamp') || $key == 'checksum') continue;
                 $insert[$key] = (is_string($value)) ? $this->app['utils']->sanitizeText($value) : $value;
             }
+// -----------------------------------------------------------------------------
+// die hier berechnete Checksumme entspricht nicht der des eingehenden Logs,
+// daher schlaegt die spaetere Pruefung der Checksumme fehl. Das hat zur Folge,
+// dass die gleichen Logs immer wieder importiert werden koennen.
+// -----------------------------------------------------------------------------
             // create the checksum
             $insert['checksum'] = $this->calculateChecksum($insert);
             // insert the record

@@ -140,6 +140,10 @@ class Restore
                     if (false === ($rows = json_decode(@file_get_contents("$source_path/$table.json"), true))) {
                         throw new \Exception("Can't read the data rows for table $table");
                     }
+                    if(!(json_last_error() == JSON_ERROR_NONE)) {
+                        $this->app['monolog']->addError($this->app['utils']->handleJSONError());
+                        throw new \Exception("Can't read the data rows for table $table");
+                    }
                     // insert the table rows
                     $replace_cms_url = $this->app['config']['restore']['settings']['replace_cms_url'];
                     $general->insertRows(CMS_TABLE_PREFIX.$table, $rows, $replace_cms_url);
@@ -361,6 +365,10 @@ class Restore
 
                 // very important: set the archive ID!
                 if (false === ($syncdata = json_decode(@file_get_contents(TEMP_PATH."/restore/backup/syncdata.json"), true))) {
+                    throw new \Exception("Can't read the syncdata.json for the backup archive!");
+                }
+                if(!(json_last_error() == JSON_ERROR_NONE)) {
+                    $this->app['monolog']->addError($this->app['utils']->handleJSONError());
                     throw new \Exception("Can't read the syncdata.json for the backup archive!");
                 }
                 $archive_id = (isset($syncdata['archive']['last_id'])) ? $syncdata['archive']['last_id'] : 0;

@@ -45,6 +45,10 @@ class SynchronizeClient
         if (false === ($tables = json_decode(@file_get_contents(TEMP_PATH.'/sync/synchronize/tables.json'), true))) {
             throw new \Exception("Can't decode the tables.json file!");
         }
+        if(!(json_last_error() == JSON_ERROR_NONE)) {
+            $this->app['monolog']->addError($this->app['utils']->handleJSONError());
+            throw new \Exception("Can't decode the tables.json file!");
+        }
         $General = new General($this->app);
         foreach ($tables as $table) {
             switch ($table['action']) {
@@ -65,6 +69,10 @@ class SynchronizeClient
                         continue;
                     }
                     if (false === ($data = json_decode($this->app['utils']->unsanitizeText($table['content']), true))) {
+                        throw new \Exception("Problem decoding json content!");
+                    }
+                    if(!(json_last_error() == JSON_ERROR_NONE)) {
+                        $this->app['monolog']->addError($this->app['utils']->handleJSONError());
                         throw new \Exception("Problem decoding json content!");
                     }
                     $General->insert(CMS_TABLE_PREFIX.$table['table_name'], $data);
@@ -95,9 +103,23 @@ class SynchronizeClient
                             array('method' => __METHOD__, 'line' => __LINE__));
                         continue;
                     }
+// ----- NOTE: json_decode() NEVER returns false on error!       -----
+// ----- But also, NULL is not an error (given data can be NULL) -----
+// ----- So we have to check json_last_error() to be sure        -----
+// -----                   B. Martinovic                         -----
                     if (false === ($data = json_decode($this->app['utils']->unsanitizeText($table['content']), true))) {
                         throw new \Exception("Problem decoding json content!");
                     }
+
+$this->app['monolog']->addInfo('original data:'.$table['content']);
+$this->app['monolog']->addInfo('decoded data:'.$this->app['utils']->unsanitizeText($table['content']));
+$this->app['monolog']->addInfo('json result code: '.json_last_error());
+
+                    if(!(json_last_error() == JSON_ERROR_NONE)) {
+                        $this->app['monolog']->addError($this->app['utils']->handleJSONError());
+                        throw new \Exception(sprintf("Can't update the data for table %s - invalid json data!",$table['table_name']));
+                    }
+
                     $General->update(CMS_TABLE_PREFIX.$table['table_name'], array($table['index_field'] => $table['index_id']), $data);
                     $checksum = $General->getRowContentChecksum(CMS_TABLE_PREFIX.$table['table_name'], array($table['index_field'] => $table['index_id']));
                     if ($checksum !== $table['checksum']) {
@@ -132,6 +154,10 @@ class SynchronizeClient
             throw new \Exception("files.json does not exists!");
         }
         if (false === ($files = json_decode(@file_get_contents(TEMP_PATH.'/sync/synchronize/files.json'), true))) {
+            throw new \Exception("Can't decode the files.json file!");
+        }
+        if(!(json_last_error() == JSON_ERROR_NONE)) {
+            $this->app['monolog']->addError($this->app['utils']->handleJSONError());
             throw new \Exception("Can't decode the files.json file!");
         }
         foreach ($files as $file) {

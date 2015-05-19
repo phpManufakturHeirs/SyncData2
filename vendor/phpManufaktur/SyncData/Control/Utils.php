@@ -633,6 +633,43 @@ class Utils
     }
 
     /**
+     *
+     * @access public
+     * @return
+     **/
+    public function handleJSONError($throw_exception=false)
+    {
+        $msg = 'JSON Error Code ['.json_last_error().']: ';
+        switch(json_last_error()) {
+            case JSON_ERROR_NONE:
+                $msg .= 'Keine Fehler';
+            break;
+            case JSON_ERROR_DEPTH:
+                $msg .= 'Maximale Stacktiefe überschritten';
+            break;
+            case JSON_ERROR_STATE_MISMATCH:
+                $msg .= 'Unterlauf oder Nichtübereinstimmung der Modi';
+            break;
+            case JSON_ERROR_CTRL_CHAR:
+                $msg .= 'Unerwartetes Steuerzeichen gefunden';
+            break;
+            case JSON_ERROR_SYNTAX:
+                $msg .= 'Syntaxfehler, ungültiges JSON';
+            break;
+            case JSON_ERROR_UTF8:
+                $msg .= 'Missgestaltete UTF-8 Zeichen, möglicherweise fehlerhaft kodiert';
+            break;
+            default:
+                $msg .= 'Unbekannter Fehler';
+            break;
+        }
+        if($throw_exception) {
+            throw new \Exception($msg);
+        }
+    }   // end function handleJSONError()
+    
+
+    /**
      * Parse a PHP file for defined constants.
      * If $constant = null return a array with all constants or false if none exists.
      * If $constant is a named return the defined value or false, if the constant does

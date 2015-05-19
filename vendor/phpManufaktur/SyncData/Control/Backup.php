@@ -155,8 +155,12 @@ class Backup
                         // replace all real URLs of the CMS  with a placeholder
                         $count = 0;
                         $new_row[$key] = is_string($value) ? str_ireplace(CMS_URL, '{{ SyncData:CMS_URL }}', $value, $count) : $value;
+                        
+                        if(!mb_detect_encoding($new_row[$key],'UTF-8',true))
+                        {
                         // important to avoid null values in json_encode
-                        $new_row[$key] = utf8_encode($new_row[$key]);
+                            $new_row[$key] = utf8_encode($new_row[$key]);
+                        }
                         if ($count > 0) {
                             $this->app['monolog']->addInfo(sprintf("Replaced the CMS URL %d time(s) in row %s of table %s", $count, $key, $table),
                                 array('method' => __METHOD__, 'line' => __LINE__));
@@ -223,6 +227,9 @@ class Backup
 
             if (!@file_put_contents(TEMP_PATH."/backup/tables/$table.json", json_encode($content))) {
                 throw new \Exception("Can't create the backup file for $table");
+            }
+            if(!(json_last_error() == JSON_ERROR_NONE)) {
+                throw new \Exception("Can't create the backup file for $table - invalid json data! (".json_last_error_msg().")");
             }
             $this->app['monolog']->addInfo("Create backup of table $table and saved it temporary",
                 array('method' => __METHOD__, 'line' => __LINE__));
