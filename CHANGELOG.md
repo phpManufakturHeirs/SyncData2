@@ -1,7 +1,18 @@
 ## SyncData ##
 
 (c) 2011, 2013 phpManufaktur by Ralf Hertsch<br/>
+(c) 2015 phpManufakturHeirs<br />
+
 MIT License (MIT) - <http://www.opensource.org/licenses/MIT>
+
+**2.0.37** - 2015-05-19
+
+* added better handling of JSON errors
+* added mb_detect_encoding() before converting export data to UTF-8 (avoid double encoding)
+
+**Important note:** SynchronizeClient.php contains some extra logging at the moment
+as there are still some issues concerning Umlauts and quots! Will be removed later
+(after that issue is fixed).
 
 **2.0.36** - 2015-03-30
 
